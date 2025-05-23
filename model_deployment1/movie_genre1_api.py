@@ -1,6 +1,6 @@
 #!/usr/bin/python
 from flask import Flask
-from flask_restx import Api, Resource, fields
+from flask_restx import Api, Resource
 from m10_genre_prediction import predict_genres_proba
 
 app = Flask(__name__)
@@ -24,21 +24,15 @@ parser.add_argument(
     location='args'
 )
 
-# Modelo de respuesta solo con probabilidades
-prob_fields = api.model('ProbabilitiesOnly', {
-    'probabilities': fields.Raw(description='Probabilidades por género (p_Género: valor)')
-})
-
 @ns.route('/')
 class GenrePredictionApi(Resource):
 
     @api.doc(parser=parser)
-    @api.marshal_with(prob_fields)
     def get(self):
         args = parser.parse_args()
         plot = args['plot']
 
-        # Obtener solo las probabilidades
+        # Obtener y retornar solo las probabilidades
         probs = predict_genres_proba(plot)
 
         return {"probabilities": probs}, 200
