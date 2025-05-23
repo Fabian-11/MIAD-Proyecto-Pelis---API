@@ -3,7 +3,7 @@ import os
 import joblib
 import pandas as pd
 
-BASE_DIR = os.path.abspath('model_deployment1')
+BASE_DIR = os.path.abspath(__file__)
 clf = joblib.load(os.path.join(BASE_DIR, 'genre_clf.pkl'))
 vect = joblib.load(os.path.join(BASE_DIR, 'genre_vectorizer.pkl'))
 le = joblib.load(os.path.join(BASE_DIR, 'genre_binarizer.pkl'))
