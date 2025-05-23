@@ -16,4 +16,9 @@ def predict_genres(plot: str, threshold: float = 0.3) -> list:
 def predict_genres_proba(plot: str) -> dict:
     X_new = vect.transform([plot])
     proba = clf.predict_proba(X_new)[0]
-    return dict(zip(['p_' + g for g in le.classes_], proba))
+    
+    # Conversión segura a tipos nativos de Python
+    return {
+        'p_' + genre: float(p) 
+        for genre, p in zip(le.classes_, proba)
+    }
