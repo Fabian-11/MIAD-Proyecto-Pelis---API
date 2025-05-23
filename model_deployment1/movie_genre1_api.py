@@ -1,8 +1,7 @@
 #!/usr/bin/python
 from flask import Flask
 from flask_restx import Api, Resource, fields
-import joblib
-from m10_genre_prediction import predict_genres, predict_genres_proba
+from m10_genre_prediction import predict_genres_proba
 
 app = Flask(__name__)
 
@@ -10,7 +9,8 @@ api = Api(
     app, 
     version='1.0', 
     title='Movie Genre Prediction API',
-    description='API para predecir géneros de películas a partir del plot')
+    description='API para predecir géneros de películas a partir del plot'
+)
 
 ns = api.namespace('predict', description='Géneros de películas')
 
@@ -21,11 +21,11 @@ parser.add_argument(
     type=str, 
     required=True, 
     help='Resumen (plot) de la película', 
-    location='args')
+    location='args'
+)
 
-# Modelo para la respuesta de la API
-resource_fields = api.model('Resource', {
-    'predicted_genres': fields.List(fields.String, description='Géneros clasificados'),
+# Modelo de respuesta solo con probabilidades
+prob_fields = api.model('ProbabilitiesOnly', {
     'probabilities': fields.Raw(description='Probabilidades por género (p_Género: valor)')
 })
 
@@ -33,18 +33,15 @@ resource_fields = api.model('Resource', {
 class GenrePredictionApi(Resource):
 
     @api.doc(parser=parser)
-    @api.marshal_with(resource_fields)
+    @api.marshal_with(prob_fields)
     def get(self):
         args = parser.parse_args()
         plot = args['plot']
 
-        # Llamar las funciones de predicción
-        predicted = predict_genres(plot)
+        # Obtener solo las probabilidades
         probs = predict_genres_proba(plot)
 
-        return {
-            "probabilities": probs
-        }, 200
+        return {"probabilities": probs}, 200
 
 if __name__ == '__main__':
     app.run(debug=True, use_reloader=False, host='0.0.0.0', port=5000)
